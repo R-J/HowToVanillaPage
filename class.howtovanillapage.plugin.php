@@ -1,19 +1,17 @@
-<?php defined('APPLICATION') or die;
+<?php
 
-$PluginInfo['HowToVanillaPage'] = array(
+$PluginInfo['howToVanillaPage'] = [
     'Name' => 'HowTo: Vanilla Page',
     'Description' => 'Example for creating a custom page that looks like most other pages in Vanilla.',
-    'Version' => '0.1',
-    'RequiredApplications' => array('Vanilla' => '>= 2.1'),
+    'Version' => '0.2',
+    'RequiredApplications' => ['Vanilla' => '>= 2.3'],
     'RequiredTheme' => false,
     'MobileFriendly' => true,
     'HasLocale' => false,
     'Author' => 'Robin Jurinka',
-    'AuthorUrl' => 'http://vanillaforums.org/profile/44046/R_J',
+    'AuthorUrl' => 'http://vanillaforums.org/profile/r_J',
     'License' => 'MIT'
-);
-
-
+];
 
 /**
  * Example for a custom page in the look and feel of any other Vanilla page.
@@ -23,7 +21,7 @@ $PluginInfo['HowToVanillaPage'] = array(
  * Furthermore it shouldn't have a clumsy url. So here is an example of how to
  * achieve that.
  *
- * @package HowToVanillaPage
+ * @package howToVanillaPage
  * @author Robin Jurinka
  * @license MIT
  */
@@ -51,9 +49,9 @@ class HowToVanillaPagePlugin extends Gdn_Plugin {
      * @package HowToVanillaPage
      * @since 0.1
      */
-    public function setup () {
+    public function setup() {
         // get a reference to Vanillas routing class
-        $router = Gdn::Router();
+        $router = Gdn::router();
 
         // this is the ugly slug we want to change
         $pluginPage = self::LONG_ROUTE.'$1';
@@ -76,40 +74,43 @@ class HowToVanillaPagePlugin extends Gdn_Plugin {
      * accessible any more.
      *
      * @return void.
-     * @package HowToVanillaPage
-     * @since 0.1
      */
-    public function onDisable () {
+    public function onDisable() {
         // easy as that:
-        Gdn::Router()-> DeleteRoute('^'.self::SHORT_ROUTE.'(/.*)?$');
+        Gdn::router()->deleteRoute('^'.self::SHORT_ROUTE.'(/.*)?$');
     }
 
 
     /**
      * Create a link to our page in the menu.
      *
-     * @param object $sender Garden Controller.
+     * @param GardenController $sender Instance of the calling class.
+     *
      * @return void.
-     * @package HowToVanillaPage
-     * @since 0.1
      */
-    public function base_render_before ($sender) {
+    public function base_render_before($sender) {
         // We only need to add the menu entry if a) the controller has a menu
         // and b) we are not in the admin area.
-        if ($sender->Menu && $sender->masterView != 'admin') {
+        if ($sender->Menu && $sender->masterView() != 'admin') {
             // If current page is our custom page, we want the menu entry
             // to be selected. This is only needed if you've changed the route,
             // otherwise it will happen automatically.
             if ($sender->SelfUrl == self::SHORT_ROUTE) {
-                $AnchorAttributes = array('class' => 'Selected');
+                $anchorAttributes = ['class' => 'Selected'];
             } else {
-                $AnchorAttributes = '';
+                $anchorAttributes = '';
             }
 
             // We add our Link to a section (but you can pass an empty string
             // if there is no group you like to add your link to), pass a name,
             // the link target and our class to the function.
-            $sender->Menu->AddLink('', t(self::PAGE_NAME), self::SHORT_ROUTE, '', $AnchorAttributes);
+            $sender->Menu->addLink(
+                '',
+                t(self::PAGE_NAME),
+                self::SHORT_ROUTE,
+                '',
+                $anchorAttributes
+            );
         }
     }
 
@@ -119,13 +120,12 @@ class HowToVanillaPagePlugin extends Gdn_Plugin {
      * By extending the Vanilla controller, we have access to all resources
      * that we need.
      *
-     * @param object $sender VanillaController.
-     * @param mixed $args Arguments for our function passed in the url.
+     * @param VanillaController $sender Instance of the calling class.
+     * @param array             $args   Arguments for our function passed in the url.
+     *
      * @return void.
-     * @package HowToVanillaPage
-     * @since 0.1
      */
-    public function vanillaController_howToVanillaPage_create ($sender, $args) {
+    public function vanillaController_howToVanillaPage_create($sender, $args) {
         // That one is critical! The template of your theme is called
         // default.master.tpl and calling this function sets the master view of
         // this controller to the default theme template.
@@ -158,7 +158,10 @@ class HowToVanillaPagePlugin extends Gdn_Plugin {
         $sender->title(t(self::PAGE_NAME));
 
         // This sets the breadcrumb to our current page.
-        $sender->setData('Breadcrumbs', array(array('Name' => t(self::PAGE_NAME), 'Url' => self::SHORT_ROUTE)));
+        $sender->setData(
+            'Breadcrumbs',
+            [['Name' => t(self::PAGE_NAME), 'Url' => self::SHORT_ROUTE]]
+        );
 
         // If you would like to pass some other data to your view, you should do
         // it with setData. Let's do a "Hello World"...
@@ -186,6 +189,6 @@ class HowToVanillaPagePlugin extends Gdn_Plugin {
 
         // We could have simply echoed to screen here, but Garden is a MVC
         // framework and that's why we should use a separate view if possible.
-        $sender->Render(parent::getView('howtovanillapage.php'));
+        $sender->render($sender->fetchViewLocation('howtovanillapage', '', 'plugins/howToVanillaPage'));
     }
 }

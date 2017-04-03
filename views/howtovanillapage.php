@@ -1,10 +1,9 @@
 <?php defined('APPLICATION') or die;
 if ($this->data('hasArguments')) {
-    $linkSuggestion = Gdn_Theme::Link($this->SelfUrl, 'no parameters');
+    $linkSuggestion = Gdn_Theme::link($this->SelfUrl, 'no parameters');
 } else {
-    $linkSuggestion = Gdn_Theme::Link($this->SelfUrl.'/Anonymous', 'parameters');
+    $linkSuggestion = Gdn_Theme::link($this->SelfUrl.'/Anonymous', 'parameters');
 }
-$alternative 
 ?>
 <h2>Hello <?= $this->data('name') ?>!</h2>
 <div class="p">Now try using this page with <?= $linkSuggestion ?>.</p>
